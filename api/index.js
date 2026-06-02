@@ -65,5 +65,10 @@ app.delete("/:id", auth, (req, res) => {
   res.json({ ok: true });
 });
 
+// --- Auth check ---
+app.get("/auth", auth, (req, res) => {
+  res.json({ ok: true });
+});
+
 const PORT = process.env.PORT || 4501;
 app.listen(PORT, () => console.log(`links api on :${PORT}`));

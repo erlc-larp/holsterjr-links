@@ -40,7 +40,8 @@ export default function LinksPage() {
   }, [authed, loadLinks]);
 
   const login = async () => {
-    const res = await fetch(API_BASE, { headers: { "x-admin-key": key } });
+    if (!key.trim()) return;
+    const res = await fetch(`${API_BASE}/auth`, { headers: { "x-admin-key": key } });
     if (res.ok) {
       setAuthed(true);
     } else {
