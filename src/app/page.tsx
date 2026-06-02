@@ -128,27 +128,29 @@ export default function LinksPage() {
 
       {/* Create form */}
       <div className="bg-white rounded-md border border-stone-200 border-l-3 border-l-amber-300 px-5 py-4 shadow-xs mb-6">
-        <div className="flex gap-2">
+        <div className="space-y-2">
           <input
             placeholder="https://example.com/long-url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && createLink()}
-            className={`flex-1 ${input}`}
+            className={input}
           />
-          <input
-            placeholder="slug (optional)"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && createLink()}
-            className={`w-36 ${input}`}
-          />
-          <button
-            onClick={createLink}
-            className="bg-stone-800 text-white text-sm px-4 py-2 rounded-md hover:bg-stone-700 transition-colors cursor-pointer shrink-0"
-          >
-            shorten
-          </button>
+          <div className="flex gap-2">
+            <input
+              placeholder="custom slug (optional)"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && createLink()}
+              className={`flex-1 ${input}`}
+            />
+            <button
+              onClick={createLink}
+              className="bg-stone-800 text-white text-sm px-4 py-2 rounded-md hover:bg-stone-700 transition-colors cursor-pointer shrink-0"
+            >
+              shorten
+            </button>
+          </div>
         </div>
       </div>
 
