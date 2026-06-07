@@ -9,6 +9,35 @@ app.use(express.json());
 
 const ADMIN_KEY = process.env.ADMIN_KEY || "changeme";
 
+// --- Rate limiting ---
+const rateMap = new Map();
+const RATE_WINDOW = 60000;
+const RATE_MAX = 30;
+
+function rateLimit(req, res, next) {
+  const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip;
+  const now = Date.now();
+  const entry = rateMap.get(ip);
+  if (!entry || now - entry.start > RATE_WINDOW) {
+    rateMap.set(ip, { start: now, count: 1 });
+    return next();
+  }
+  entry.count++;
+  if (entry.count > RATE_MAX) {
+    return res.status(429).json({ error: "too many requests" });
+  }
+  next();
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateMap) {
+    if (now - entry.start > RATE_WINDOW) rateMap.delete(ip);
+  }
+}, 300000);
+
+app.use(rateLimit);
+
 function auth(req, res, next) {
   const key = req.headers["x-admin-key"];
   if (key !== ADMIN_KEY) return res.status(401).json({ error: "unauthorized" });
