@@ -44,14 +44,16 @@ function auth(req, res, next) {
   next();
 }
 
+const router = express.Router();
+
 // get all links
-app.get("/", auth, (req, res) => {
+router.get("/", auth, (req, res) => {
   const rows = db.prepare("SELECT * FROM links ORDER BY created_at DESC").all();
   res.json(rows);
 });
 
 // resolve a slug (public)
-app.get("/r/:slug", (req, res) => {
+router.get("/r/:slug", (req, res) => {
   const link = db.prepare("SELECT * FROM links WHERE slug = ?").get(req.params.slug);
   if (!link) return res.status(404).json({ error: "not found" });
   db.prepare("UPDATE links SET clicks = clicks + 1 WHERE id = ?").run(link.id);
@@ -59,7 +61,7 @@ app.get("/r/:slug", (req, res) => {
 });
 
 // create a link
-app.post("/", auth, (req, res) => {
+router.post("/", auth, (req, res) => {
   const { url, slug } = req.body;
   if (!url) return res.status(400).json({ error: "url required" });
 
@@ -73,7 +75,7 @@ app.post("/", auth, (req, res) => {
 });
 
 // update a link
-app.put("/:id", auth, (req, res) => {
+router.put("/:id", auth, (req, res) => {
   const { url, slug } = req.body;
   const link = db.prepare("SELECT * FROM links WHERE id = ?").get(req.params.id);
   if (!link) return res.status(404).json({ error: "not found" });
@@ -89,15 +91,17 @@ app.put("/:id", auth, (req, res) => {
 });
 
 // delete a link
-app.delete("/:id", auth, (req, res) => {
+router.delete("/:id", auth, (req, res) => {
   db.prepare("DELETE FROM links WHERE id = ?").run(req.params.id);
   res.json({ ok: true });
 });
 
 // --- Auth check ---
-app.get("/auth", auth, (req, res) => {
+router.get("/auth", auth, (req, res) => {
   res.json({ ok: true });
 });
+
+app.use("/links", router);
 
 const PORT = process.env.PORT || 4501;
 app.listen(PORT, () => console.log(`links api on :${PORT}`));
